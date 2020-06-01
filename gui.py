@@ -2,11 +2,12 @@ from tkinter import *
 from tkinter import filedialog
 from tkcalendar import *
 from tkinter import messagebox
+from tweetcleaner import tweet_cleaner, preprocess_tweet
 import GetOldTweets3 as got
 
 LARGE_FONT = ("Verdana", 12, "bold")
 BUTTON_FONT = ("Verdana", 10)
-SIZE = '450x250'
+SIZE = '500x270'
 
 class ProjectApp(Tk):
     def __init__(self, *args, **kwargs):
@@ -79,20 +80,26 @@ class GatherData(Frame):
         titleFrame.pack(fill=BOTH)
 
         btnName = 'Collect'
-        leftFrame = Frame(self, background='red')
+        leftFrame = Frame(self)
         leftFrame.pack(side=LEFT, anchor="nw")
+        
         keywordLabel = Label(leftFrame, text="Keywords(s) :")
         tweetCount = Label(leftFrame, text="No. of Tweets :")
         StartDate = Label(leftFrame, text="Start Date :")
         EndDate =  Label(leftFrame, text="End Data :")
+        NameFile =  Label(leftFrame, text="File Name :")
+        
         keywordLabel.grid(row=0, column=0)
         tweetCount.grid(row=1)
         StartDate.grid(row=2)
         EndDate.grid(row=3)
+        NameFile.grid(row=4)
 
+        namefile = StringVar()
         keyword = StringVar()
         tweetCount = IntVar()
 
+        filenameEntry = Entry(leftFrame, width=25, textvariable=namefile)
         keywordEntry = Entry(leftFrame, width=25, textvariable=keyword)
         tweetCount = Entry(leftFrame, width=25, textvariable=tweetCount)
         DateStart = DateEntry(leftFrame, width=22, background="white")
@@ -102,19 +109,20 @@ class GatherData(Frame):
         DateStart.delete(0, "end")
         DateEnd.delete(0, "end")
 
+        filenameEntry.grid(row=4,column=1, pady=(3, 3))
         DateStart.grid(row=2,column=1, pady=(3, 3))
         DateEnd.grid(row=3, column=1, pady=(3, 3))
         tweetCount.grid(row=1, column=1, pady=(3, 3))
         keywordEntry.grid(row=0, column=1, pady=(3, 3))
 
         def collect():
+            self.namefile = str(namefile.get())
             self.keyword = str(keyword.get())
             self.tweetCount = int(tweetCount.get())
             self.startDate = str(DateStart.get_date())
             self.endDate = str(DateEnd.get_date())
-            btnName = 'Collecting...'
-            self.GetOldTweets(self.keyword, self.tweetCount, self.startDate, self.endDate)
-            btnName = 'Collect'
+            self.GetOldTweets(self.keyword, self.tweetCount, self.startDate, self.endDate, self.namefile)
+            
 
         def clearFieldsFn():
             keywordEntry.delete(0, END)
@@ -128,31 +136,39 @@ class GatherData(Frame):
             fileNameLabel.configure(text=fileNameDisp)
 
         collectBtn = Button(leftFrame, text=btnName, bg="#4285f4", fg="white", width=21, command=collect)
-        collectBtn.grid(row=4, column=1, pady=(3, 3))
+        collectBtn.grid(row=5, column=1, pady=(3, 3))
         clearBtn = Button(leftFrame, text="Clear", bg="#4285f4", fg="white", width=21, command=clearFieldsFn)
-        clearBtn.grid(row=5, column=1, pady=(3, 3))
+        clearBtn.grid(row=6, column=1, pady=(3, 3))
 
         rightFrame = Frame(self, background='black')
         rightFrame.pack(side=RIGHT, anchor="ne")  
 
-        fileNameLabel = Label(rightFrame, text=self.filename)  
-        ChooseFile = Button(rightFrame, text="Choose File", bg="#4285f4", fg="white", width=21, command=handlefile)
-        ChooseFile.pack()
-        fileNameLabel.pack()
+        #fileNameLabel = Label(rightFrame, text=self.filename)  
+        #ChooseFile = Button(rightFrame, text="Choose File", bg="#4285f4", fg="white", width=21, command=handlefile)
+        #ChooseFile.pack()
+        #fileNameLabel.pack()
         
-    def GetOldTweets(self,keyword, count, start, end):
+    def GetOldTweets(self,keyword, count, start, end, file):
+        print('Collecting Tweets...')
+        
         tweetCriteria = got.manager.TweetCriteria()\
                 .setQuerySearch(keyword)\
                 .setSince(start)\
                 .setUntil(end)\
                 .setMaxTweets(count)
         tweets = got.manager.TweetManager.getTweets(tweetCriteria)
-        text_tweets = [[tweet.text] for tweet in tweets]
-        FileHandling(self.filename, text_tweets) 
+        
+        with open(file, 'w', encoding='utf-8') as new_collection:
+            for tweet in tweets:
+                new_collection.write(f'{tweet.text}\n')
+        print(f'{tweets.length} tweets successfuly collected!')
+        #text_tweets = [tweet.text for tweet in tweets]
+        #print(text_tweets)
+        #FileHandling(self.filename, text_tweets) 
 
 
 class DataPC(Frame):
-    filename = 'Choose a file: '
+    filename = 'Empty'
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
         self.app_toolbar = Toolbar(self, controller)
@@ -161,25 +177,59 @@ class DataPC(Frame):
         self.app_toolbar.pack(anchor="nw")
         title.pack()
         titleFrame.pack(fill=BOTH)
+        
+        self.leftFrame = Frame(self)
+        self.leftFrame.pack(side=LEFT, anchor="nw", padx=(5,0))
+        
+        self.newfile = StringVar()
 
-        self.mainFrame = LabelFrame(self, text="Train a file", width=500, height=250, padx=25, pady=25, background='red')
-        self.mainFrame.pack()  
-        self.filenameLabel = Label(self, text=self.filename)
-        self.filenameLabel.pack()
+        #self.mainFrame = Label(self, text="Select a file to clean:", width=500, height=250, padx=25, pady=25)
+        #self.mainFrame.pack(side=LEFT, anchor="nw")
+        
+        self.file = Label(self.leftFrame, text="File:")
+        self.newfilename = Label(self.leftFrame, text="New name:")
+
+        #self.file.pack(side=LEFT, anchor="nw")
+        #self.newfilename.pack(side=LEFT, anchor="nw")
+
+        #self.file.grid(row=0, column=0, pady=(3, 3))
+        self.newfilename.grid(row=1, pady=(3, 3))
+
+        cleanedFile = Entry(self.leftFrame, width=35, textvariable=self.newfile)
+        cleanedFile.grid(row=1,column=1, pady=(3, 3))
+        
+        self.filenameLabel = Label(self.leftFrame, text=self.filename)
+        self.filenameLabel.grid(row=0, column=1, pady=(3, 5))
         self.Buttons()
 
     def Buttons(self):
         def chooseFile():
             self.filename = FileHandling.filedialog(self)
-            fileNameDisp = self.filename.split('/')
-            fileNameDisp = fileNameDisp[-1]
+            fileNameDisp = self.filename
+            #fileNameDisp = fileNameDisp[-1]
             # fileNameLabel = Label(rightFrame, text=) 
             self.filenameLabel.configure(text=fileNameDisp)
 
-        self.openFileBtn = Button(self.mainFrame, width=21, text = 'Open a File', command=chooseFile)
-        self.openFileBtn.pack()
+        def cleanfile():
+            print('Cleaning...')
+            temp = ''
+            with open(str(self.filename.split('/')[-1]), 'r', encoding="utf8") as tweets:
+                data = tweets.readlines()
+                with open(str(self.newfile.get()), 'w', encoding="utf8") as newfile:
+                  for x in data:
+                    temp = preprocess_tweet(x)
+                    print(f'Original: {x}')
+                    print(f'Cleaned: {temp}')
+                    newfile.write(f'{temp}\n')
+            print('Cleaning Finished!')
 
-        
+        self.openFileBtn = Button(self.leftFrame, width=10, text = 'Select a file', command=chooseFile)
+        self.cleanFile = Button(self.leftFrame, bg="#4285f4", fg="white", width=21, text = 'Clean the file', command=cleanfile)
+        self.openFileBtn.grid(row=0, column=0, pady=(3, 5))
+        self.cleanFile.grid(row=4, column=1, pady=(3, 3))
+
+class Trainer(Frame):
+    pass
         
 class FileHandling:
     def __init__(self, parent, tweets):
