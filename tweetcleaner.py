@@ -74,4 +74,5 @@ def tweet_cleaner(fileName):
       for x in data:
         newfile.write(f'{preprocess_tweet(x)}\n')
 
-tweet_cleaner('tweets.txt')
+if __name__ == '__main__':
+    tweet_cleaner('tweets.txt')
