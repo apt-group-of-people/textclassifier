@@ -6,13 +6,15 @@ import GetOldTweets3 as got
 
 LARGE_FONT = ("Verdana", 12, "bold")
 BUTTON_FONT = ("Verdana", 10)
+SIZE = '450x250'
 
 class ProjectApp(Tk):
     def __init__(self, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)
         Tk.iconbitmap(self, default="icon.ico")
         Tk.wm_title(self, "Project Application")
-
+        self.geometry(SIZE)
+        self.resizable(0, 0)
         container = Frame(self)
         container.pack(side="top", fill="both", expand=True)
         container.grid_rowconfigure(0, weight=1)
@@ -38,9 +40,9 @@ class Toolbar(Frame):
         Frame.bg="#4285f4"
         btn1 = Button(self, text="Guide", font=BUTTON_FONT, bd=1, bg="#4285f4", fg="white", command=lambda: controller.show_frame(Guide))
         btn2 = Button(self, text="Gather Data", font=BUTTON_FONT, bd=1, bg="#4285f4", fg="white", command=lambda: controller.show_frame(GatherData))
-        btn3 = Button(self, text="Data Processing and Cleaning", font=BUTTON_FONT, bd=1, bg="#4285f4", fg="white", command=lambda: controller.show_frame(DataPC))
-        btn4 = Button(self, text="Data Training", font=BUTTON_FONT, bd=1, bg="#4285f4", fg="white", command=lambda: controller.show_frame(GatherData))
-        btn5 = Button(self, text="Classification", font=BUTTON_FONT, bd=1, bg="#4285f4", fg="white", command=lambda: controller.show_frame(Guide))
+        btn3 = Button(self, text="Cleaner", font=BUTTON_FONT, bd=1, bg="#4285f4", fg="white", command=lambda: controller.show_frame(DataPC))
+        btn4 = Button(self, text="Trainer", font=BUTTON_FONT, bd=1, bg="#4285f4", fg="white", command=lambda: controller.show_frame(GatherData))
+        btn5 = Button(self, text="Classifier", font=BUTTON_FONT, bd=1, bg="#4285f4", fg="white", command=lambda: controller.show_frame(Guide))
         btn6 = Button(self, text="Visualization", font=BUTTON_FONT, bd=1, bg="#4285f4", fg="white", command=lambda: controller.show_frame(GatherData))
         btn1.pack(side=LEFT)
         btn2.pack(side=LEFT)
@@ -75,7 +77,8 @@ class GatherData(Frame):
         app_toolbar.pack(anchor="nw")
         title.pack()
         titleFrame.pack(fill=BOTH)
-    
+
+        btnName = 'Collect'
         leftFrame = Frame(self, background='red')
         leftFrame.pack(side=LEFT, anchor="nw")
         keywordLabel = Label(leftFrame, text="Keywords(s) :")
@@ -99,17 +102,19 @@ class GatherData(Frame):
         DateStart.delete(0, "end")
         DateEnd.delete(0, "end")
 
-        DateStart.grid(row=2,column=1)
-        DateEnd.grid(row=3, column=1)
-        tweetCount.grid(row=1, column=1)
-        keywordEntry.grid(row=0, column=1)
+        DateStart.grid(row=2,column=1, pady=(3, 3))
+        DateEnd.grid(row=3, column=1, pady=(3, 3))
+        tweetCount.grid(row=1, column=1, pady=(3, 3))
+        keywordEntry.grid(row=0, column=1, pady=(3, 3))
 
         def collect():
             self.keyword = str(keyword.get())
             self.tweetCount = int(tweetCount.get())
             self.startDate = str(DateStart.get_date())
             self.endDate = str(DateEnd.get_date())
+            btnName = 'Collecting...'
             self.GetOldTweets(self.keyword, self.tweetCount, self.startDate, self.endDate)
+            btnName = 'Collect'
 
         def clearFieldsFn():
             keywordEntry.delete(0, END)
@@ -122,10 +127,10 @@ class GatherData(Frame):
             # fileNameLabel = Label(rightFrame, text=) 
             fileNameLabel.configure(text=fileNameDisp)
 
-        collectBtn = Button(leftFrame, text="Collect", bg="#4285f4", fg="white", width=21, command=collect)
-        collectBtn.grid(row=4, column=1)
+        collectBtn = Button(leftFrame, text=btnName, bg="#4285f4", fg="white", width=21, command=collect)
+        collectBtn.grid(row=4, column=1, pady=(3, 3))
         clearBtn = Button(leftFrame, text="Clear", bg="#4285f4", fg="white", width=21, command=clearFieldsFn)
-        clearBtn.grid(row=5, column=1)
+        clearBtn.grid(row=5, column=1, pady=(3, 3))
 
         rightFrame = Frame(self, background='black')
         rightFrame.pack(side=RIGHT, anchor="ne")  
@@ -152,7 +157,7 @@ class DataPC(Frame):
         Frame.__init__(self, parent)
         self.app_toolbar = Toolbar(self, controller)
         titleFrame = Frame(self, bg="#4285f4")
-        title = Label(titleFrame, text="Data Process and Cleaning", fg="white", bg="#4285f4", font=LARGE_FONT)
+        title = Label(titleFrame, text="Cleaner", fg="white", bg="#4285f4", font=LARGE_FONT)
         self.app_toolbar.pack(anchor="nw")
         title.pack()
         titleFrame.pack(fill=BOTH)
