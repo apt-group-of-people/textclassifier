@@ -4,6 +4,7 @@ from tkcalendar import *
 from tkinter import messagebox
 import GetOldTweets3 as got
 from tkinter import ttk
+import os 
 
 from tweetcleaner import preprocess_tweet
 from datapreprocess import *
@@ -11,14 +12,14 @@ from datapreprocess import *
 
 LARGE_FONT = ("Verdana", 12, "bold")
 BUTTON_FONT = ("Verdana", 10)
-SIZE = '500x270'
+SIZE = '450x270'
 
 
 class ProjectApp(Tk):
     def __init__(self, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)
         Tk.iconbitmap(self, default="icon.ico")
-        Tk.wm_title(self, "Project Application")
+        Tk.wm_title(self, "Text Classifier")
         self.geometry(SIZE)
         self.resizable(0, 0)
         container = Frame(self)
@@ -175,7 +176,7 @@ class DataPC(Frame):
         titleFrame.pack(fill=BOTH)
         
         self.leftFrame = Frame(self)
-        self.leftFrame.pack(side=LEFT, anchor="nw", padx=(55,0), pady=(15,0))
+        self.leftFrame.pack(side=LEFT, anchor="nw", padx=(15,0), pady=(15,0))
         
         self.newfile = StringVar()
         
@@ -200,7 +201,7 @@ class DataPC(Frame):
         def cleanfile():
             print('Cleaning...')
             temp = ''
-            with open(str(self.filename.split('/')[-1]), 'r', encoding="utf8") as tweets:
+            with open(str(self.filename), 'r', encoding="utf8") as tweets:
                 data = tweets.readlines()
                 with open(str(self.newfile.get()), 'w', encoding="utf8") as newfile:
                   for x in data:
@@ -236,32 +237,69 @@ class Trainer(Frame):
         self.words.grid(row=1, pady=(3, 3))
         self.algo.grid(row=2, pady=(3, 3))
 
-        cleanedFile = Entry(self.leftFrame, width=25, textvariable=self.newfile)
-        cleanedFile.grid(row=1,column=1, pady=(3, 3))
+        wordCount = Entry(self.leftFrame, width=25, textvariable=self.wordcount)
+        wordCount.grid(row=1,column=1, pady=(3, 3))
         
         self.filenameLabel = Label(self.leftFrame, text='Empty...')
         self.filenameLabel.grid(row=0, column=1, pady=(3, 5))
 
-        algoBox = ttk.Combobox(self.leftFrame, 
+        self.algoBox = ttk.Combobox(self.leftFrame, 
                             values=[
                                     "Naive Bayes", 
                                     "Support Vector Machine",
                                     "Decision Tree"],
                                     state="readonly", width=23)
-        algoBox.grid(column=1, row=2)
-        algoBox.current(0)
+        self.algoBox.grid(column=1, row=2)
+        self.algoBox.current(0)
         self.Buttons()
 
     def Buttons(self):
-        filepath = ''
+        self.filepath = ''
         def chooseFile():
-            filepath = FileHandling.filedialog(self)
-            fileNameDisp = filepath 
+            self.filepath = FileHandling.filedialog(self)
+            fileNameDisp = self.filepath 
             self.filenameLabel.configure(text=fileNameDisp)
 
         def trainData():
             print('Training...')
-            classifier_data = classify_train(filepath, int(self.wordcount.get()), str(algoBox.get()))
+            algo = ''
+            if str(self.algoBox.get()) == 'Naive Bayes':
+                algo = 'naive'
+            if str(self.algoBox.get()) == 'Support Vector Machine':
+                algo = 'decision'
+            if str(self.algoBox.get()) == 'Decision Tree':
+                algo = 'svm'
+                
+            #print('test',algo)
+            classifier_data, accuracy, update = classify_train(self.filepath, int(self.wordcount.get()), str(algo))
+
+            report = Tk()
+            report.geometry('300x200')
+            report.configure(bg='black')
+            report.resizable(500, 0)
+
+            mainTitle = Frame(report)
+            name = Label(mainTitle, text="Training Result", font=LARGE_FONT)
+            name.pack()
+            mainTitle.pack(fill=BOTH)
+            
+            scrollbar = Scrollbar(report)
+            scrollbar.pack( side = RIGHT, fill = Y )
+            termf = Listbox(report, yscrollcommand=scrollbar.set, bg="#4285f4")
+
+            for line in update:
+                termf.insert(END, line)
+            
+            termf.pack(side=LEFT, fill=BOTH)
+            scrollbar.config( command = termf.yview )
+            #dataFrame = Frame(report, bg="black")
+            #dataFrame.pack(side=LEFT, anchor="nw", padx=(5, 0))
+
+            #i = 1
+            #for x in update:
+            #    lb = Label(dataFrame, text=x, fg="white", bg="black", anchor="e")
+            #    lb.grid(row=i, column=1, sticky=W)
+            #    i += 1
 
         self.openFileBtn = Button(self.leftFrame, width=10, text = 'Select the file', command=chooseFile)
         self.trainBtn = Button(self.leftFrame, bg="#4285f4", fg="white", width=22, text = 'Train', command=trainData)
@@ -276,7 +314,7 @@ class FileHandling:
         self.File.close()
 
     def filedialog(self):
-        self.filename = filedialog.askopenfilename(initialdir = "/", title = "Select A File", filetype = (("text", "*.txt"), ("All Files", "*.*")))   
+        self.filename = filedialog.askopenfilename(initialdir = os.getcwd(), title = "Select A File", filetype = (("text", "*.txt"), ("All Files", "*.*")))   
         return self.filename
 
     def handleFile(self, tweets):
