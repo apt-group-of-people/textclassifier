@@ -6,3 +6,5 @@ pyquery==1.4.1
 pytz==2020.1
 tkcalendar==1.6.1
 nltk
+scipy
+scikit-learn
