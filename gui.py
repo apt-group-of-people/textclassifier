@@ -21,7 +21,6 @@ class ProjectApp(Tk):
         Tk.iconbitmap(self, default="icon.ico")
         Tk.wm_title(self, "Text Classifier")
         self.geometry(SIZE)
-        #self.resizable(0, 0)
         container = Frame(self)
         container.pack(side="top", fill="both", expand=True)
         container.grid_rowconfigure(0, weight=1)
@@ -92,19 +91,15 @@ class GatherData(Frame):
         tweetCount = Label(leftFrame, text="No. of Tweets :")
         StartDate = Label(leftFrame, text="Start Date :")
         EndDate =  Label(leftFrame, text="End Data :")
-        #NameFile =  Label(leftFrame, text="File Name :")
         
         keywordLabel.grid(row=0, column=0)
         tweetCount.grid(row=1)
         StartDate.grid(row=2)
         EndDate.grid(row=3)
-        #NameFile.grid(row=4)
 
-        #namefile = StringVar()
         keyword = StringVar()
         tweetCount = IntVar()
 
-        #filenameEntry = Entry(leftFrame, width=25, textvariable=namefile)
         keywordEntry = Entry(leftFrame, width=25, textvariable=keyword)
         tweetCount = Entry(leftFrame, width=25, textvariable=tweetCount)
         DateStart = DateEntry(leftFrame, width=22, background="white")
@@ -115,14 +110,12 @@ class GatherData(Frame):
         DateStart.delete(0, "end")
         DateEnd.delete(0, "end")
 
-        #filenameEntry.grid(row=4,column=1, pady=(3, 3), sticky = W)
         DateStart.grid(row=2,column=1, pady=(3, 3), sticky = W)
         DateEnd.grid(row=3, column=1, pady=(3, 3), sticky = W)
         tweetCount.grid(row=1, column=1, pady=(3, 3), sticky = W)
         keywordEntry.grid(row=0, column=1, pady=(3, 3), sticky = W)
 
         def collect():
-            #self.namefile = str(namefile.get())
             self.keyword = str(keyword.get())
             self.tweetCount = int(tweetCount.get())
             self.startDate = str(DateStart.get_date())
@@ -181,12 +174,6 @@ class DataPC(Frame):
         self.newfile = StringVar()
         
         self.file = Label(self.leftFrame, text="File:")
-        #self.newfilename = Label(self.leftFrame, text="New name:")
-
-        #self.newfilename.grid(row=1, pady=(3, 3))
-
-        #cleanedFile = Entry(self.leftFrame, width=35, textvariable=self.newfile)
-        #cleanedFile.grid(row=1,column=1, pady=(3, 3), sticky = W)
         
         self.filenameLabel = Label(self.leftFrame, text=self.filename)
         self.filenameLabel.grid(row=0, column=1, pady=(3, 5), sticky = W)
@@ -277,7 +264,6 @@ class Trainer(Frame):
             if str(self.algoBox.get()) == 'Decision Tree':
                 algo = 'svm'
                 
-            #print('test',algo)
             classifier_data, accuracy, update = classify_train(self.filepath, int(self.wordcount.get()), str(algo))
 
             f = FileHandling.file_save(self, '.pkl')
@@ -374,7 +360,6 @@ class Classify(Frame):
             with open(self.filenameLabel['text'], 'r', encoding='ISO-8859-1') as tweetfile:
                 with open(FileHandling.file_save(self, '.txt'), 'w+', encoding="utf-8") as saving:
                     for tweet in tweetfile:
-                        #print(tweet)
                         saving.write(f"{tweet.strip()}\t{classify_data(pickled_class, tweet)}\n")
             pickle_in.close()
 

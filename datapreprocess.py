@@ -24,12 +24,14 @@ def getFile(data, word_use):
     all_data = []
     print('Preprocessing Data...')
     update.append('Preprocessing Data...')
+    
     with open(data, 'r', encoding="utf-8") as file:
         for line in file:
             cat = line.strip().split('\t')
             if len(cat) <= 1:
                 continue
             all_data.append(([x for x in cat[0].split(' ')],cat[1]))
+            
     print(f'There are {len(all_data)} usable lines of tweets...\n')
     update.append(f'There are {len(all_data)} usable lines of tweets...\n')
     
@@ -38,12 +40,16 @@ def getFile(data, word_use):
     all_words = []
     print(f'Counting words...')
     update.append(f'Counting words...')
+    
     for w in all_data:
         for x in w[0]:
             all_words.append(x.lower())
+            
     all_words = nltk.FreqDist(all_words)
+    
     print(f'\n100 most common words:\n{all_words.most_common(100)}\n')
     word_features = list(all_words.keys())[:word_use]
+    
     print(f'WORD FEATURES: {word_features}')
     update.append(f'There are currently {len(list(all_words.keys()))} unique words...')
     print(f'There are currently {len(list(all_words.keys()))} unique words...')
@@ -59,6 +65,7 @@ def classify_train(fileName, word_use, algo='naive'):
     all_data, word_features = getFile(fileName, word_use)
     print(f'Creating features...')
     update.append(f'Creating features...')
+
     featuresets = [(find_features(tweet, word_features), sent) for (tweet, sent) in all_data]
     print(f'Using {len(featuresets)//2} featuresets for training and testing.')
     update.append(f'Using {len(featuresets)//2} featuresets for training and testing.')
@@ -85,34 +92,13 @@ def classify_train(fileName, word_use, algo='naive'):
     full_data = {"classifier": classifier, "features": word_features}
 
     return full_data, acc, update
-    #classifier_outfile = open('pickled_classify.pickle', 'wb')
-    #pickle.dump(full_data, classifier_outfile)
-    #classifier_outfile.close()
-    
-    #classifier.show_most_informative_features(15)
-    #print(classifier.labels())
-    #test_probability = classifier.prob_classify(testing_set[0][0])
-    #test_predict = classifier.classify(testing_set[0][0])
-    #print(test_predict)
-    #for test_tweet, test_sent in testing_set:
-    #    print(f"{' '.join(list(test_tweet.keys()))}")
-    #    print(f"Correct Sentiment: {test_sent}")
-    #   print(f"Predicted Sentiment: {classifier.classify(test_tweet)}\n\n")
-    #for sample in test_probability.samples():
-        #print(f'{sample}: {test_probability.prob(sample)}')
 
 def classify_data(classify, tweet):
     cleaned_tweet = preprocess_tweet(tweet)
-    tweet_feature = find_features(tweet, classify['features'])
+    tweet_feature = find_features([x for x in tweet], classify['features'])
     prediction = classify['classifier'].classify(tweet_feature)
+    
     return prediction
-
-#if __name__== '__main__':
-    #test = classify_train('new_data/newtestdata.txt',300,'naive')
-    #pickle_in = open("pickled_classify.pickle","rb")
-    #classifier_data = pickle.load(pickle_in)
-    #test = classify_data(classifier_data, "@user supposedly taunton didn't cross paths w/ hitchens during his last year. just another religion claiming the dead.")
-    #print(test)
 
 
 
