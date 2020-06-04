@@ -12,7 +12,7 @@ from datapreprocess import *
 
 LARGE_FONT = ("Verdana", 12, "bold")
 BUTTON_FONT = ("Verdana", 10)
-SIZE = '450x270'
+SIZE = '500x270'
 
 
 class ProjectApp(Tk):
@@ -21,14 +21,14 @@ class ProjectApp(Tk):
         Tk.iconbitmap(self, default="icon.ico")
         Tk.wm_title(self, "Text Classifier")
         self.geometry(SIZE)
-        self.resizable(0, 0)
+        #self.resizable(0, 0)
         container = Frame(self)
         container.pack(side="top", fill="both", expand=True)
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
         self.frames = {}
 
-        for F in (Guide, GatherData, DataPC, Toolbar, Trainer):
+        for F in (Guide, GatherData, DataPC, Toolbar, Trainer, Classify):
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nswe")
@@ -48,8 +48,8 @@ class Toolbar(Frame):
         btn2 = Button(self, text="Gather Data", font=BUTTON_FONT, bd=1, bg="#4285f4", fg="white", command=lambda: controller.show_frame(GatherData))
         btn3 = Button(self, text="Cleaner", font=BUTTON_FONT, bd=1, bg="#4285f4", fg="white", command=lambda: controller.show_frame(DataPC))
         btn4 = Button(self, text="Trainer", font=BUTTON_FONT, bd=1, bg="#4285f4", fg="white", command=lambda: controller.show_frame(Trainer))
-        btn5 = Button(self, text="Classifier", font=BUTTON_FONT, bd=1, bg="#4285f4", fg="white", command=lambda: controller.show_frame(Guide))
-        btn6 = Button(self, text="Visualization", font=BUTTON_FONT, bd=1, bg="#4285f4", fg="white", command=lambda: controller.show_frame(GatherData))
+        btn5 = Button(self, text="Classifier", font=BUTTON_FONT, bd=1, bg="#4285f4", fg="white", command=lambda: controller.show_frame(Classify))
+        btn6 = Button(self, text="Visualization", font=BUTTON_FONT, bd=1, bg="#4285f4", fg="white", command=lambda: controller.show_frame(Guide))
         btn1.pack(side=LEFT)
         btn2.pack(side=LEFT)
         btn3.pack(side=LEFT)
@@ -92,19 +92,19 @@ class GatherData(Frame):
         tweetCount = Label(leftFrame, text="No. of Tweets :")
         StartDate = Label(leftFrame, text="Start Date :")
         EndDate =  Label(leftFrame, text="End Data :")
-        NameFile =  Label(leftFrame, text="File Name :")
+        #NameFile =  Label(leftFrame, text="File Name :")
         
         keywordLabel.grid(row=0, column=0)
         tweetCount.grid(row=1)
         StartDate.grid(row=2)
         EndDate.grid(row=3)
-        NameFile.grid(row=4)
+        #NameFile.grid(row=4)
 
-        namefile = StringVar()
+        #namefile = StringVar()
         keyword = StringVar()
         tweetCount = IntVar()
 
-        filenameEntry = Entry(leftFrame, width=25, textvariable=namefile)
+        #filenameEntry = Entry(leftFrame, width=25, textvariable=namefile)
         keywordEntry = Entry(leftFrame, width=25, textvariable=keyword)
         tweetCount = Entry(leftFrame, width=25, textvariable=tweetCount)
         DateStart = DateEntry(leftFrame, width=22, background="white")
@@ -115,19 +115,19 @@ class GatherData(Frame):
         DateStart.delete(0, "end")
         DateEnd.delete(0, "end")
 
-        filenameEntry.grid(row=4,column=1, pady=(3, 3))
-        DateStart.grid(row=2,column=1, pady=(3, 3))
-        DateEnd.grid(row=3, column=1, pady=(3, 3))
-        tweetCount.grid(row=1, column=1, pady=(3, 3))
-        keywordEntry.grid(row=0, column=1, pady=(3, 3))
+        #filenameEntry.grid(row=4,column=1, pady=(3, 3), sticky = W)
+        DateStart.grid(row=2,column=1, pady=(3, 3), sticky = W)
+        DateEnd.grid(row=3, column=1, pady=(3, 3), sticky = W)
+        tweetCount.grid(row=1, column=1, pady=(3, 3), sticky = W)
+        keywordEntry.grid(row=0, column=1, pady=(3, 3), sticky = W)
 
         def collect():
-            self.namefile = str(namefile.get())
+            #self.namefile = str(namefile.get())
             self.keyword = str(keyword.get())
             self.tweetCount = int(tweetCount.get())
             self.startDate = str(DateStart.get_date())
             self.endDate = str(DateEnd.get_date())
-            self.GetOldTweets(self.keyword, self.tweetCount, self.startDate, self.endDate, self.namefile)
+            self.GetOldTweets(self.keyword, self.tweetCount, self.startDate, self.endDate)
             
 
         def clearFieldsFn():
@@ -148,7 +148,7 @@ class GatherData(Frame):
         rightFrame = Frame(self, background='black')
         rightFrame.pack(side=RIGHT, anchor="ne")
         
-    def GetOldTweets(self,keyword, count, start, end, file):
+    def GetOldTweets(self,keyword, count, start, end):
         print('Collecting Tweets...')
         
         tweetCriteria = got.manager.TweetCriteria()\
@@ -158,10 +158,10 @@ class GatherData(Frame):
                 .setMaxTweets(count)
         tweets = got.manager.TweetManager.getTweets(tweetCriteria)
         
-        with open(file, 'w', encoding='utf-8') as new_collection:
+        with open(FileHandling.file_save(self, '.txt'), 'w', encoding='utf-8') as new_collection:
             for tweet in tweets:
                 new_collection.write(f'{tweet.text}\n')
-        print(f'{tweets.length} tweets successfuly collected!')
+        print(f'{len(tweets)} tweets successfuly collected!')
 
 
 class DataPC(Frame):
@@ -181,29 +181,33 @@ class DataPC(Frame):
         self.newfile = StringVar()
         
         self.file = Label(self.leftFrame, text="File:")
-        self.newfilename = Label(self.leftFrame, text="New name:")
+        #self.newfilename = Label(self.leftFrame, text="New name:")
 
-        self.newfilename.grid(row=1, pady=(3, 3))
+        #self.newfilename.grid(row=1, pady=(3, 3))
 
-        cleanedFile = Entry(self.leftFrame, width=35, textvariable=self.newfile)
-        cleanedFile.grid(row=1,column=1, pady=(3, 3))
+        #cleanedFile = Entry(self.leftFrame, width=35, textvariable=self.newfile)
+        #cleanedFile.grid(row=1,column=1, pady=(3, 3), sticky = W)
         
         self.filenameLabel = Label(self.leftFrame, text=self.filename)
-        self.filenameLabel.grid(row=0, column=1, pady=(3, 5))
+        self.filenameLabel.grid(row=0, column=1, pady=(3, 5), sticky = W)
         self.Buttons()
 
     def Buttons(self):
         def chooseFile():
-            self.filename = FileHandling.filedialog(self)
-            fileNameDisp = self.filename
-            self.filenameLabel.configure(text=fileNameDisp)
+            self.filename = FileHandling.filedialog(self, 'txt')
+            if self.filename == '':
+                fileNameDisp = self.filename
+                self.filenameLabel.configure(text="Empty")
+            else:
+                fileNameDisp = self.filename
+                self.filenameLabel.configure(text=fileNameDisp)
 
         def cleanfile():
             print('Cleaning...')
             temp = ''
-            with open(str(self.filename), 'r', encoding="utf8") as tweets:
+            with open(str(self.filename), 'r', encoding="utf-8") as tweets:
                 data = tweets.readlines()
-                with open(str(self.newfile.get()), 'w', encoding="utf8") as newfile:
+                with open(FileHandling.file_save(self, '.txt'), 'w', encoding="utf-8") as newfile:
                   for x in data:
                     temp = preprocess_tweet(x)
                     newfile.write(f'{temp}\n')
@@ -211,8 +215,8 @@ class DataPC(Frame):
 
         self.openFileBtn = Button(self.leftFrame, width=10, text = 'Select a file', command=chooseFile)
         self.cleanFile = Button(self.leftFrame, bg="#4285f4", fg="white", width=21, text = 'Clean the file', command=cleanfile)
-        self.openFileBtn.grid(row=0, column=0, pady=(3, 5))
-        self.cleanFile.grid(row=4, column=1, pady=(3, 3))
+        self.openFileBtn.grid(row=0, column=0, pady=(3, 5), sticky = W)
+        self.cleanFile.grid(row=4, column=1, pady=(3, 3), sticky = W)
 
 
 class Trainer(Frame):
@@ -238,10 +242,10 @@ class Trainer(Frame):
         self.algo.grid(row=2, pady=(3, 3))
 
         wordCount = Entry(self.leftFrame, width=25, textvariable=self.wordcount)
-        wordCount.grid(row=1,column=1, pady=(3, 3))
+        wordCount.grid(row=1,column=1, pady=(3, 3), sticky = W)
         
         self.filenameLabel = Label(self.leftFrame, text='Empty...')
-        self.filenameLabel.grid(row=0, column=1, pady=(3, 5))
+        self.filenameLabel.grid(row=0, column=1, pady=(3, 5), sticky = W)
 
         self.algoBox = ttk.Combobox(self.leftFrame, 
                             values=[
@@ -249,16 +253,19 @@ class Trainer(Frame):
                                     "Support Vector Machine",
                                     "Decision Tree"],
                                     state="readonly", width=23)
-        self.algoBox.grid(column=1, row=2)
+        self.algoBox.grid(column=1, row=2, sticky = W)
         self.algoBox.current(0)
         self.Buttons()
 
     def Buttons(self):
         self.filepath = ''
         def chooseFile():
-            self.filepath = FileHandling.filedialog(self)
-            fileNameDisp = self.filepath 
-            self.filenameLabel.configure(text=fileNameDisp)
+            self.filepath = FileHandling.filedialog(self, 'txt')
+            if self.filepath == '':
+                self.filepath = 'Empty'
+            else:
+                fileNameDisp = self.filepath 
+                self.filenameLabel.configure(text=fileNameDisp)
 
         def trainData():
             print('Training...')
@@ -273,39 +280,111 @@ class Trainer(Frame):
             #print('test',algo)
             classifier_data, accuracy, update = classify_train(self.filepath, int(self.wordcount.get()), str(algo))
 
+            f = FileHandling.file_save(self, '.pkl')
+            pickle_out = open(f,"wb")
+            pickle.dump(classifier_data, pickle_out)
+            pickle_out.close()
+            update.append('-----------Classifier Saved-------------\n\n')
             report = Tk()
-            report.geometry('300x200')
             report.configure(bg='black')
-            report.resizable(500, 0)
-
-            mainTitle = Frame(report)
-            name = Label(mainTitle, text="Training Result", font=LARGE_FONT)
+            report.title("Training Result")
+            
+            mainTitle = Frame(report, bg="#4285f4")
+            name = Label(mainTitle, text="Training Result", font=LARGE_FONT,fg="white", bg="#4285f4")
             name.pack()
             mainTitle.pack(fill=BOTH)
-            
-            scrollbar = Scrollbar(report)
-            scrollbar.pack( side = RIGHT, fill = Y )
-            termf = Listbox(report, yscrollcommand=scrollbar.set, bg="#4285f4")
 
-            for line in update:
-                termf.insert(END, line)
-            
-            termf.pack(side=LEFT, fill=BOTH)
-            scrollbar.config( command = termf.yview )
-            #dataFrame = Frame(report, bg="black")
-            #dataFrame.pack(side=LEFT, anchor="nw", padx=(5, 0))
+            mainBody = Frame(report)
+            mainBody.pack(fill=BOTH)
 
-            #i = 1
-            #for x in update:
-            #    lb = Label(dataFrame, text=x, fg="white", bg="black", anchor="e")
-            #    lb.grid(row=i, column=1, sticky=W)
-            #    i += 1
+            canvas = Canvas(mainBody)
+            
+            scrollbar = Scrollbar(mainBody, orient="vertical", command=canvas.yview)
+            scrollable_frame = Frame(canvas)
+
+            scrollable_frame.bind(
+                "<Configure>",
+                lambda e: canvas.configure(
+                    scrollregion=canvas.bbox("all")
+                )
+            )
+
+            canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+            canvas.configure(yscrollcommand=scrollbar.set)
+            i = 0
+            for x in update:
+                ttk.Label(scrollable_frame, text=x, justify=LEFT, anchor="w").grid(row=i, sticky = W)
+                i = i+1
+            mainBody.pack()
+            canvas.pack(side="left", fill="both", expand=True)
+            scrollbar.pack(side="right", fill="y")
+    
 
         self.openFileBtn = Button(self.leftFrame, width=10, text = 'Select the file', command=chooseFile)
         self.trainBtn = Button(self.leftFrame, bg="#4285f4", fg="white", width=22, text = 'Train', command=trainData)
         self.openFileBtn.grid(row=0, column=0, pady=(3, 3))
-        self.trainBtn.grid(row=3, column=1, pady=(3, 5))
+        self.trainBtn.grid(row=3, column=1, pady=(3, 5), sticky = W)
 
+
+class Classify(Frame):
+    def __init__(self, parent, controller):
+        Frame.__init__(self, parent)
+        self.app_toolbar = Toolbar(self, controller)
+        titleFrame = Frame(self, bg="#4285f4")
+        title = Label(titleFrame, text="Classify", fg="white", bg="#4285f4", font=LARGE_FONT)
+        self.app_toolbar.pack(anchor="nw")
+        title.pack()
+        titleFrame.pack(fill=BOTH)
+        
+        self.leftFrame = Frame(self)
+        self.leftFrame.pack(side=LEFT, anchor="nw", padx=(15, 0), pady=(10, 0))
+
+        self.words = Label(self.leftFrame, text="New file:")
+
+
+        self.filenameLabel = Label(self.leftFrame, text='Empty...')
+        self.filenameLabel.grid(row=0, column=1, pady=(3, 5), sticky = W)
+
+        self.classifierLabel = Label(self.leftFrame, text='Empty...')
+        self.classifierLabel.grid(row=1, column=1, pady=(3, 5), sticky = W)
+
+        self.Buttons()
+
+    def Buttons(self):
+        self.filename = ''
+        self.classifier = ''
+        def chooseFile():
+            self.filename = FileHandling.filedialog(self, 'txt')
+            if self.filename == '':
+                fileNameDisp = 'Empty'
+            else:
+                self.filenameLabel.configure(text=self.filename)
+
+        def chooseClassifier():
+            self.classifier = FileHandling.filedialog(self, 'pickle')
+            if self.classifier == '':
+                fileNameDisp = 'Empty'
+            else:
+                self.classifierLabel.configure(text=self.classifier)
+
+        def classifyTweets():
+            print("Classifying data...")
+            pickle_in = open(self.classifierLabel['text'],"rb")
+            pickled_class = pickle.load(pickle_in)
+            with open(self.filenameLabel['text'], 'r', encoding='ISO-8859-1') as tweetfile:
+                with open(FileHandling.file_save(self, '.txt'), 'w+', encoding="utf-8") as saving:
+                    for tweet in tweetfile:
+                        #print(tweet)
+                        saving.write(f"{tweet.strip()}\t{classify_data(pickled_class, tweet)}\n")
+            pickle_in.close()
+
+        self.selectFile = Button(self.leftFrame, width=15, text = 'Select the file', command=chooseFile)
+        self.selectClassifier = Button(self.leftFrame, width=15, text = 'Select Classifier', command=chooseClassifier)
+        self.classifyNow = Button(self.leftFrame, width=25, fg="white", bg="#4285f4", text = 'Classify Tweets', command=classifyTweets)
+        self.selectFile.grid(row=0, column=0, pady=(3, 5), sticky = W)
+        self.selectClassifier.grid(row=1, column=0, pady=(3, 3), sticky = W)
+        self.classifyNow.grid(row=2, column=1, pady=(3, 3), sticky = W)
+        
   
 class FileHandling:
     def __init__(self, parent, tweets):
@@ -313,9 +392,26 @@ class FileHandling:
         self.handleFile(tweets)
         self.File.close()
 
-    def filedialog(self):
-        self.filename = filedialog.askopenfilename(initialdir = os.getcwd(), title = "Select A File", filetype = (("text", "*.txt"), ("All Files", "*.*")))   
+    def filedialog(self, typ):
+        file = set()
+        if typ == 'txt':
+            file = ("text", ".txt .text")
+        elif typ == 'pickle':
+            file = ("pickle", ".pickle .pkl")
+            
+        self.filename = filedialog.askopenfilename(initialdir = os.getcwd(), title = "Select A File", filetype = (file, ("All Files", "*.*")))   
         return self.filename
+
+    def file_save(self, typ):
+        file = set()
+        if typ == '.txt':
+            file = ("text", ".txt")
+        elif typ == '.pkl':
+            file = ("pickle", ".pkl")
+        f = filedialog.asksaveasfile(initialdir = os.getcwd(), title = "Select A File", filetypes = [file], defaultextension=typ)
+        if f is None:
+            return
+        return f.name
 
     def handleFile(self, tweets):
         text = ""

@@ -44,6 +44,7 @@ def getFile(data, word_use):
     all_words = nltk.FreqDist(all_words)
     print(f'\n100 most common words:\n{all_words.most_common(100)}\n')
     word_features = list(all_words.keys())[:word_use]
+    print(f'WORD FEATURES: {word_features}')
     update.append(f'There are currently {len(list(all_words.keys()))} unique words...')
     print(f'There are currently {len(list(all_words.keys()))} unique words...')
     print(f'Using only {word_use} words...\n')
@@ -59,11 +60,15 @@ def classify_train(fileName, word_use, algo='naive'):
     print(f'Creating features...')
     update.append(f'Creating features...')
     featuresets = [(find_features(tweet, word_features), sent) for (tweet, sent) in all_data]
-    training_set = featuresets[:word_use//2]
-    testing_set = featuresets[word_use//2:]
+    print(f'Using {len(featuresets)//2} featuresets for training and testing.')
+    update.append(f'Using {len(featuresets)//2} featuresets for training and testing.')
+    training_set = featuresets[:len(featuresets)//2]
+    testing_set = featuresets[len(featuresets)//2:]
     classifier = []
+    
     print('Data currently being trained...\n')
     update.append('Data currently being trained...\n')
+    
     if algo == 'naive':
         classifier = nltk.NaiveBayesClassifier.train(training_set)
     elif algo == 'decision':
@@ -78,7 +83,6 @@ def classify_train(fileName, word_use, algo='naive'):
     print(f"Training finished!")
     update.append(f"Training finished!")
     full_data = {"classifier": classifier, "features": word_features}
-    print(update)
 
     return full_data, acc, update
     #classifier_outfile = open('pickled_classify.pickle', 'wb')
@@ -109,24 +113,6 @@ def classify_data(classify, tweet):
     #classifier_data = pickle.load(pickle_in)
     #test = classify_data(classifier_data, "@user supposedly taunton didn't cross paths w/ hitchens during his last year. just another religion claiming the dead.")
     #print(test)
-#report = Tk()
-#termf = Frame(report, height=200, width=300, bg="#4285f4")
-#report.geometry('300x200')
-#report.configure(bg='black')
-#report.resizable(0, 0)
-#termf.pack(fill=BOTH)
-#name = Label(termf, text="Training Result", fg="white", bg="#4285f4", font=LARGE_FONT)
-#name.pack()
-
-#dataFrame = Frame(report, bg="black")
-#dataFrame.pack(side=LEFT, anchor="nw", padx=(5, 0))
-
-#i = 1
-#for x in update:
-#    lb = Label(dataFrame, text=x, fg="white", bg="black")
-#    lb.grid(row=i, column=1)
-#    i += 1
-#report.mainloop()
 
 
 
