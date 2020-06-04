@@ -1,10 +1,27 @@
-# textclassifier
-Does a lot of things.
+# Text Classifier
 
-## Cool links
-https://pythonprogramming.net/tokenizing-words-sentences-nltk-tutorial/
-http://blog.chapagain.com.np/python-twitter-sentiment-analysis-on-real-time-tweets-using-textblob/
-https://www.analyticsvidhya.com/blog/2018/04/a-comprehensive-guide-to-understand-and-implement-text-classification-in-python/
-https://monkeylearn.com/sentiment-analysis/
-https://www.digitalocean.com/community/tutorials/how-to-perform-sentiment-analysis-in-python-3-using-the-natural-language-toolkit-nltk
-https://towardsdatascience.com/creating-the-twitter-sentiment-analysis-program-in-python-with-naive-bayes-classification-672e5589a7ed
+A text classifier program made in [python](https://www.python.org/) using [nltk](https://www.nltk.org/) modules. This program can collect tweets, clean the collected tweets, train, and classify data.
+
+
+
+## Installation
+
+Make sure that you have installed [python](https://www.python.org/) version 3.6 or higher before proceeding.
+
+Make sure to click the add to environment when installing python.
+
+Be sure you are in the textclassifier directory.
+
+Use the package manager [pip](https://pip.pypa.io/en/stable/) to install the packages required to run this text classifier.
+
+```bash
+pip install -r requirements.txt
+```
+
+## Usage
+
+Open the python idle, select gui.py then run.
+
+
+## License
+[MIT](https://choosealicense.com/licenses/mit/)
