@@ -1,4 +1,4 @@
-# Test code for tweet cleaner
+# Code for tweet cleaner
 import re
 import sys
 from nltk.stem.porter import PorterStemmer
@@ -67,11 +67,9 @@ def preprocess_tweet(tweet):
 
     return ' '.join(processed_tweet)
 
-def tweet_cleaner(fileName):
+def tweet_cleaner(fileName, newName):
   with open(fileName, 'r', encoding="utf8") as tweets:
     data = tweets.readlines()
-    with open('cleanedtweets.txt', 'w', encoding="utf8") as newfile:
+    with open(newName, 'w', encoding="utf8") as newfile:
       for x in data:
         newfile.write(f'{preprocess_tweet(x)}\n')
-
-tweet_cleaner('tweets.txt')
