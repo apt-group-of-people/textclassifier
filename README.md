@@ -23,5 +23,11 @@ pip install -r requirements.txt
 Open the python idle, select gui.py then run.
 
 
+## Contributors
+[jaakofalltrade](https://github.com/jaakofalltrade)
+
+[kojiadrianojr](https://github.com/kojiadrianojr)
+
+
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
