@@ -1,4 +1,4 @@
-Babel==2.8.0
+Babel==2.9.1
 cssselect==1.1.0
 GetOldTweets3==0.0.11
 lxml==4.5.0
